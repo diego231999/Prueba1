@@ -140,6 +140,7 @@ public class Query {
         String id_jefe=hash_jefes.get(jefe_empleado);
         String id_del_trabajo=hash_jobs.get(empleo);
         String xd="1234";
+        String xd2="holamundo";
         String sql4="insert into employees(first_name, last_name, email, salary, job_id, department_id, manager_id,hire_date)"+"values("+nombre+","+apellido+","+correo+","+sueldito+","+"select job_id from jobs where job_title="+empleo+","+"select department_id from departments where department_name="+departamento+","+"select e.employee_id from employees e where e.first_name="+nombre_jefe_empleado+" and e.last_name="+apellido_jefe_empleado+","+date+");";
         String sql5="insert into employees(first_name, last_name, email, salary, job_id, department_id, manager_id,hire_date)"+"values('"+nombre+"','"+apellido+"','"+correo+"','"+sueldito+"','"+id_del_trabajo+"','"+id_dpto+"','"+id_jefe+"','"+now()+"')";
 
