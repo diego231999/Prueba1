@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import static java.time.LocalDate.now;
+
 public class Query {
     private String user;
     private String pass;
@@ -56,9 +58,13 @@ public class Query {
         setUser("root");
         setPass("root");
         setUrl("jdbc:mysql://localhost:3306/hr?serverTimezone=America/Lima");
-        String sql="select job_title from jobs;";
-        String sql2="select concat(m.first_name,\" \",m.last_name) 'Jefe' from employees e,employees m where e.manager_id=m.employee_id group by m.employee_id;";
-        String sql3="select department_name from departments;";
+        String sql="select job_title,job_id from jobs;";
+        String sql2="select concat(m.first_name,\" \",m.last_name)'Jefe', m.employee_id from employees e,employees m where e.manager_id=m.employee_id group by m.employee_id;";
+        String sql3="select department_name, department_id from departments;";
+
+        HashMap<String, String> hash_departamentos = new HashMap<String, String>();
+        HashMap<String, String> hash_jobs = new HashMap<String, String>();
+        HashMap<String, String> hash_jefes = new HashMap<String, String>();
 
         try (Connection conn = DriverManager.getConnection(getUrl(), getUser(), getPass());
              Statement stmt = conn.createStatement();
@@ -66,7 +72,9 @@ public class Query {
             Class.forName("com.mysql.cj.jdbc.Driver");
             while(rs.next()){
                 String empleos=rs.getString(1);
+                String id_empleos=rs.getString(2);
                 lista_empleos.add(empleos);
+                hash_jobs.put(empleos,id_empleos);
             }
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
@@ -76,8 +84,10 @@ public class Query {
              ResultSet rs2 = stmt2.executeQuery(sql2)) {
             Class.forName("com.mysql.cj.jdbc.Driver");
             while(rs2.next()){
-                String trabajos=rs2.getString(1);
-                lista_jefes.add(trabajos);
+                String id_jefes=rs2.getString(2);
+                String jefes=rs2.getString(1);
+                lista_jefes.add(jefes);
+                hash_jefes.put(jefes,id_jefes);
             }
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
@@ -88,7 +98,9 @@ public class Query {
             Class.forName("com.mysql.cj.jdbc.Driver");
             while(rs3.next()){
                 String departamentos=rs3.getString(1);
+                String id_de_departamentos=rs3.getString(2);
                 lista_departamentos.add(departamentos);
+                hash_departamentos.put(departamentos,id_de_departamentos);
             }
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
@@ -109,6 +121,9 @@ public class Query {
         }
         System.out.print("--> ");
         String jefe_empleado=entrada.nextLine();
+        String [] parts= jefe_empleado.split(" ");
+        String nombre_jefe_empleado= parts[0];
+        String apellido_jefe_empleado= parts[1];
         System.out.println("Ingrese el departamento del empleado: ");
         i=1;
         for(String dp : lista_departamentos){
@@ -117,6 +132,29 @@ public class Query {
         }
         System.out.print("--> ");
         String departamento=entrada.nextLine();
+        System.out.print("Ingrese el sueldo: ");
+        String sueldito= entrada.nextLine();
+        String date="1987-06-17 00:00:00";
+
+        String id_dpto=hash_departamentos.get(departamento);
+        String id_jefe=hash_jefes.get(jefe_empleado);
+        String id_del_trabajo=hash_jobs.get(empleo);
+
+        String sql4="insert into employees(first_name, last_name, email, salary, job_id, department_id, manager_id,hire_date)"+"values("+nombre+","+apellido+","+correo+","+sueldito+","+"select job_id from jobs where job_title="+empleo+","+"select department_id from departments where department_name="+departamento+","+"select e.employee_id from employees e where e.first_name="+nombre_jefe_empleado+" and e.last_name="+apellido_jefe_empleado+","+date+");";
+        String sql5="insert into employees(first_name, last_name, email, salary, job_id, department_id, manager_id,hire_date)"+"values('"+nombre+"','"+apellido+"','"+correo+"','"+sueldito+"','"+id_del_trabajo+"','"+id_dpto+"','"+id_jefe+"','"+now()+"')";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            Connection conn4 = DriverManager.getConnection(getUrl(),getUser(),getPass());
+            Statement stmt4 = conn4.createStatement();
+            stmt4.executeUpdate(sql5);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
     }
 
