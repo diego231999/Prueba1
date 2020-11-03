@@ -39,7 +39,7 @@ public class Main {
         }
         //String sql2="select e.employee_id, concat(m.first_name,\" \",m.last_name) 'Jefe' from employees e, employees m where e.manager_id=m.employee_id;";
         //identificadores=query.setId(sql2);
-
+        //f;
 
     }
 
